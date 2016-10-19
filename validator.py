@@ -6,7 +6,7 @@ from gevent.pool import Pool
 from logger import logger
 import re
 import time
-import pyip
+import ipip
 import requests
 from config import VALIDATE_CONFIG
 
@@ -19,15 +19,15 @@ class Validator:
         self.pattern = re.compile(
             r'((?:IP:Port)|(?:HTTP_CLIENT_IP)|(?:HTTP_X_FORWARDED_FOR))</td>\n?\s*<td.*?>(.*?)</td>', re.I)
         self.ip = self._get_self_ip()
-        self.IPL = pyip.IPLocator('QQWry.Dat')
+        self.IPL = ipip.IPL('17monipdb.dat')
+        self.pool = Pool(self.thread_num)
 
     def run(self, proxies):
         # 采用gevent进行处理
         if not self.ip:
             logger.error('Validating fail, self ip is empty')
             return []
-        pool = Pool(self.thread_num)
-        avaliable_proxies = filter(lambda x: x, pool.map(self.validate, proxies))
+        avaliable_proxies = filter(lambda x: x, self.pool.map(self.validate, proxies))
         logger.info('Get %s avaliable proxies' % len(avaliable_proxies))
         return avaliable_proxies
 
@@ -58,7 +58,7 @@ class Validator:
                         'port': proxy.split(':')[1],
                         'type': type,
                         'speed': speed,
-                        'area': self.IPL.getIpAddr(self.IPL.str2ip(proxy.split(':')[0]))
+                        'area': self.IPL.find(proxy.split(':')[0]).rstrip().replace('\t', '.')
                     }
         except Exception as e:
             logger.debug('Validating %s, fail: %s', proxy, e)

@@ -9,7 +9,7 @@ HEADER = {
 }
 
 PROXYPOOL_CONFIG = {
-    'MIN_IP_NUM': 1000,  # 代理池中最小可用ip数量，若检测到小于此数量，启动爬虫
+    'MIN_IP_NUM': 5000,  # 代理池中最小可用ip数量，若检测到小于此数量，启动爬虫
     'DELETE_TIME': 24 * 60,  # minutes, 删除该时间之前的ip
     'UPDATE_TIME': 10,  # minutes, 更新该时间之前的ip
     'CRAWL_TIME': 30  # minutes, 计算可用ip数量时取该时间之内

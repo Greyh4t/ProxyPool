@@ -21,16 +21,16 @@ def get_proxy_sites():
             'range': [],
             'pattern': '(?P<ip>(?:\d{1,3}\.){1,3}\d{1,3}):(?P<port>\d{1,4})'
         },
-        {
-            'url': 'http://www.kuaidaili.com/proxylist/%s',
-            'range': range(1, 11),
-            'pattern': '(?P<ip>(?:\d{1,3}\.){3}\d{1,3})</td>\n?\s*<td.*?>\s*(?P<port>\d{1,4})'
-        },
-        {
-            'url': 'http://www.kuaidaili.com/free/%s',
-            'range': ['%s/%s' % (m, n) for m in ['inha', 'intr', 'outha', 'outtr'] for n in range(1, 11)],
-            'pattern': '(?P<ip>(?:\d{1,3}\.){3}\d{1,3})</td>\n?\s*<td.*?>\s*(?P<port>\d{1,4})'
-        },
+        # {
+        #     'url': 'http://www.kuaidaili.com/proxylist/%s',
+        #     'range': range(1, 11),
+        #     'pattern': '(?P<ip>(?:\d{1,3}\.){3}\d{1,3})</td>\n?\s*<td.*?>\s*(?P<port>\d{1,4})'
+        # },
+        # {
+        #     'url': 'http://www.kuaidaili.com/free/%s',
+        #     'range': ['%s/%s' % (m, n) for m in ['inha', 'intr', 'outha', 'outtr'] for n in range(1, 11)],
+        #     'pattern': '(?P<ip>(?:\d{1,3}\.){3}\d{1,3})</td>\n?\s*<td.*?>\s*(?P<port>\d{1,4})'
+        # },
         {
             'url': 'http://www.xicidaili.com/%s',
             'range': ['%s/%s' % (m, n) for m in ['nn', 'nt', 'wn', 'wt'] for n in range(1, 6)],

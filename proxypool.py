@@ -27,8 +27,8 @@ class ProxyPool:
             time.sleep(1800)
 
     def _crawl(self, minutes):
-        query = 'SELECT COUNT(*) FROM proxy WHERE updatetime>\'%s\'' % (
-        (datetime.datetime.now() - datetime.timedelta(minutes=minutes)).strftime('%Y-%m-%d %H:%M:%S'))
+        query = 'SELECT COUNT(*) FROM proxy WHERE updatetime>\'%s\'' % \
+                ((datetime.datetime.now() - datetime.timedelta(minutes=minutes)).strftime('%Y-%m-%d %H:%M:%S'))
         count = self.sqlite.executesql(query)[0]
         if int(count[0]) < PROXYPOOL_CONFIG['MIN_IP_NUM']:
             logger.info('Crawl proxy begin')
@@ -39,6 +39,10 @@ class ProxyPool:
             logger.info('Validate proxy end')
             if DB_CONFIG['SQLITE']:
                 self.save2sqlite(avaliable_proxies)
+            time.sleep(600)
+            self._crawl(minutes)
+        else:
+            return
 
     def _delete(self, minutes):
         query = 'DELETE FROM proxy WHERE updatetime<\'%s\'' % (
