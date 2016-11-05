@@ -21,6 +21,7 @@ class Validator:
         self.ip = self._get_self_ip()
         self.IPL = ipip.IPL('17monipdb.dat')
         self.pool = Pool(self.thread_num)
+        self.headers = {'Referer': self.target}
 
     def run(self, proxies):
         # 采用gevent进行处理
@@ -34,7 +35,7 @@ class Validator:
     def validate(self, proxy):
         try:
             start = time.time()
-            r = requests.get(self.target, proxies={'http': 'http://%s' % proxy}, timeout=self.timeout)
+            r = requests.get(self.target, headers=self.headers, proxies={'http': 'http://%s' % proxy}, timeout=self.timeout)
             if r.ok:
                 speed = time.time() - start
                 headers = self.pattern.findall(r.content)
@@ -68,7 +69,7 @@ class Validator:
     def _get_self_ip(self):
         # 获取自身外网ip
         try:
-            r = requests.get(self.target, timeout=5)
+            r = requests.get(self.target, headers=self.headers, timeout=5)
             if r.ok:
                 pattern = re.compile(r'IP:port</td>\n?\s*<td.*?>([\d.]*?)(?::\d*)</td>', re.I)
                 ip = pattern.search(r.content).group(1)
