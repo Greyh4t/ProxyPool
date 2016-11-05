@@ -18,10 +18,10 @@ class Validator:
         self.thread_num = VALIDATE_CONFIG['THREAD_NUM']
         self.pattern = re.compile(
             r'((?:IP:Port)|(?:HTTP_CLIENT_IP)|(?:HTTP_X_FORWARDED_FOR))</td>\n?\s*<td.*?>(.*?)</td>', re.I)
+        self.headers = {'Referer': self.target}
         self.ip = self._get_self_ip()
         self.IPL = ipip.IPL('17monipdb.dat')
         self.pool = Pool(self.thread_num)
-        self.headers = {'Referer': self.target}
 
     def run(self, proxies):
         # 采用gevent进行处理
