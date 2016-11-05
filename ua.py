@@ -36,3 +36,11 @@ class UserAgent(object):
             ]
         except KeyError:
             return None
+
+if __name__ == '__main__':
+    ua = UserAgent()
+    print ua['opera']
+    print ua['ie']
+    print ua.chrome
+    print ua.firefox
+    print ua.random
