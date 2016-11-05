@@ -2,8 +2,7 @@
 Crawl and validate proxies from Internet
 
 # Features
-********
-* fake-useragent from `fake-useragent<https://github.com/hellysmile/fake-useragent>`_
+fake-useragent from https://github.com/hellysmile/fake-useragent
 
 # Requirement
 ```
