@@ -51,7 +51,19 @@ def get_proxy_sites():
             'url': 'http://proxy.ipcn.org/proxylist%s.html',
             'range': ['', '2'],
             'pattern': '(?P<ip>(?:\d{1,3}\.){1,3}\d{1,3}):(?P<port>\d{1,4})'
-        }
+        },
+        {
+            'url': 'http://ip84.com/%s',
+            'range': ['dl'] + ['dl/%s' % n for n in range(1, 15)]
+                     +
+                     ['gw'] + ['gw/%s' % n for n in range(1, 40)],
+            'pattern': '(?P<ip>(?:\d{1,3}\.){3}\d{1,3})</td>\n?\s*<td.*?>\s*(?P<port>\d{1,4})'
+        },
+        {
+            'url': 'http://www.mimiip.com/%s',
+            'range': ['%s/%s' % (m, n) for m in ['gngao', 'gnpu', 'gntou', 'hw'] for n in range(1, 5)],
+            'pattern': '(?P<ip>(?:\d{1,3}\.){3}\d{1,3})</td>\n?\s*<td.*?>\s*(?P<port>\d{1,4})'
+        },
     ]
     proxysites.extend(get_proxy_sites2())
     return proxysites

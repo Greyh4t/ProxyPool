@@ -37,11 +37,11 @@ class DatabaseObject(object):
            CREATE INDEX IF NOT EXISTS proxy_index on proxy (protocol, type, area, speed, updatetime, lastusedtime);
            CREATE TRIGGER IF NOT EXISTS proxy_update_trig AFTER UPDATE OF speed ON proxy
                BEGIN
-                 UPDATE proxy SET updatetime = datetime(\'now\',\'localtime\'),score = ((SELECT score FROM proxy WHERE ip=NEW.ip AND port=NEW.port)+1) WHERE ip = NEW.ip AND port = NEW.port;
+                 UPDATE proxy SET updatetime=datetime(\'now\',\'localtime\'),score=(score+1) WHERE ip=NEW.ip AND port=NEW.port;
                END;
            CREATE TRIGGER IF NOT EXISTS proxy_insert_trig AFTER INSERT ON proxy
                BEGIN
-                 UPDATE proxy SET updatetime = datetime(\'now\',\'localtime\') WHERE ip = NEW.ip and port = NEW.port;
+                 UPDATE proxy SET updatetime=datetime(\'now\',\'localtime\') WHERE ip=NEW.ip and port=NEW.port;
                END;
        '''
         self.cursor.executescript(query)

@@ -10,9 +10,11 @@ HEADER = {
 
 PROXYPOOL_CONFIG = {
     'MIN_IP_NUM': 5000,  # 代理池中最小可用ip数量，若检测到小于此数量，启动爬虫
-    'DELETE_TIME': 24 * 60,  # minutes, 删除该时间之前的ip
-    'UPDATE_TIME': 10,  # minutes, 更新该时间之前的ip
-    'CRAWL_TIME': 30  # minutes, 计算可用ip数量时取该时间之内
+    'DELETE_TIME': 24 * 60,  # minutes, 删除更新时间在该时间之前的ip
+    'DELETE_SCORE': -5,  # 删除分数小于该分值的ip
+    'UPDATE_TIME': 10,  # minutes, 重新验证该时间之前的ip
+    'CRAWL_TIME': 30,  # minutes, 计算可用ip数量时, 取距当前多少分钟内验证过的ip
+    'SLEEP_TIME': 1800  # second, 两次爬取间隔
 }
 
 API_CONFIG = {
@@ -29,7 +31,8 @@ VALIDATE_CONFIG = {
     'THREAD_NUM': 1000,
     'TIMEOUT': 20,
     'PROXY_TYPE': [0, 1, 2, 3],
-    'TARGET': 'http://proxy.mimvp.com/check.php',
+    'HTTP_TARGET': 'http://proxy.mimvp.com/check.php',
+    'HTTPS_TARGET': 'https://proxy.mimvp.com/check.php'
     # 'TARGET1': 'http://7xr8ng.com1.z0.glb.clouddn.com/a.txt',
     # 'TARGET2': 'http://www.stilllistener.com/checkpoint1/test11/'
 }

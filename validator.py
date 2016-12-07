@@ -8,17 +8,21 @@ import re
 import time
 import ipip
 import requests
+from ua import RandomHeader
 from config import VALIDATE_CONFIG
 
+requests.packages.urllib3.disable_warnings()
+rh = RandomHeader()
 
 class Validator:
     def __init__(self):
-        self.target = VALIDATE_CONFIG['TARGET']
+        self.http_target = VALIDATE_CONFIG['HTTP_TARGET']
+        self.https_target = VALIDATE_CONFIG['HTTPS_TARGET']
         self.timeout = VALIDATE_CONFIG['TIMEOUT']
         self.thread_num = VALIDATE_CONFIG['THREAD_NUM']
         self.pattern = re.compile(
             r'((?:IP:Port)|(?:HTTP_CLIENT_IP)|(?:HTTP_X_FORWARDED_FOR))</td>\n?\s*<td.*?>(.*?)</td>', re.I)
-        self.headers = {'Referer': self.target}
+        self.headers = rh.Header(self.http_target)
         self.ip = self._get_self_ip()
         self.IPL = ipip.IPL('17monipdb.dat')
         self.pool = Pool(self.thread_num)
@@ -32,10 +36,10 @@ class Validator:
         logger.info('Get %s avaliable proxies' % len(avaliable_proxies))
         return avaliable_proxies
 
-    def validate(self, proxy):
+    def _v(self, proxy, target):
         try:
             start = time.time()
-            r = requests.get(self.target, headers=self.headers, proxies={'http': 'http://%s' % proxy}, timeout=self.timeout)
+            r = requests.get(target, headers=self.headers, proxies={'http': 'http://%s' % proxy}, timeout=self.timeout, verify=False)
             if r.ok:
                 speed = time.time() - start
                 headers = self.pattern.findall(r.content)
@@ -66,10 +70,31 @@ class Validator:
             pass
         return None
 
+    def validate(self, (proxy, protocol)):
+        proxy_info = None
+        http_proxy_info = None
+        https_proxy_info = None
+        if protocol == 'http':
+            http_proxy_info = self._v(proxy, self.http_target)
+        # if protocol == 'https':
+            # https_proxy_info = self._v(proxy, self.https_target)
+        else:
+            http_proxy_info = self._v(proxy, self.http_target)
+            # if not http_proxy_info:
+                # https_proxy_info = self._v(proxy, self.https_target)
+
+        if http_proxy_info:
+            http_proxy_info['protocol'] = 'http'
+            proxy_info = http_proxy_info
+        # elif https_proxy_info:
+            # https_proxy_info['protocol'] = 'https'
+            # proxy_info = https_proxy_info
+        return proxy_info
+
     def _get_self_ip(self):
         # 获取自身外网ip
         try:
-            r = requests.get(self.target, headers=self.headers, timeout=5)
+            r = requests.get(self.http_target, headers=self.headers, timeout=5)
             if r.ok:
                 pattern = re.compile(r'IP:port</td>\n?\s*<td.*?>([\d.]*?)(?::\d*)</td>', re.I)
                 ip = pattern.search(r.content).group(1)

@@ -7,11 +7,13 @@ import re
 import json
 import random
 import requests
+from ua import RandomHeader
 from logger import logger
-from config import HEADER, CRAWLER_CONFIG, API_CONFIG
+from config import CRAWLER_CONFIG, API_CONFIG
 from proxysites import get_proxy_sites
 
 CRAWLER_POOL = Pool(CRAWLER_CONFIG['THREAD_NUM'])
+rh = RandomHeader()
 
 
 class Crawler(object):
@@ -29,25 +31,24 @@ class Crawler(object):
         proxies = []
         r = None
         try:
-            r = requests.get(site_url, headers=HEADER, timeout=CRAWLER_CONFIG['TIMEOUT'])
+            r = requests.get(site_url, headers=rh.Header(site_url), timeout=CRAWLER_CONFIG['TIMEOUT'])
         except:
             pass
         COUNT = 0
         while CRAWLER_CONFIG['RETRY_TIMES'] > COUNT:
             if not r or (not r.ok) or len(r.content) < 500:
-                port = API_CONFIG['PORT']
-                pr = requests.get('http://localhost:%s/?type=3' % port)
                 try:
+                    port = API_CONFIG['PORT']
+                    pr = requests.get('http://localhost:%s/?type=3' % port)
                     proxy = json.loads(pr.content)
                     if proxy:
                         proxy = proxy[0]
-                        r = requests.get(site_url, headers=HEADER, timeout=CRAWLER_CONFIG['TIMEOUT'],
+                        r = requests.get(site_url, headers=rh.Header(site_url), timeout=CRAWLER_CONFIG['TIMEOUT'],
                                          proxies={'http': 'http://%s' % proxy})
                     else:
                         break
                 except Exception, e:
                     pass
-                    # print e
                 COUNT += 1
             else:
                 break

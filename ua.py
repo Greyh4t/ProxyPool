@@ -2,6 +2,21 @@
 import codecs
 import json
 import random
+from config import HEADER
+
+
+class RandomHeader:
+    def __init__(self):
+        self.ua = UserAgent()
+        self.header = HEADER
+
+    def Header(self, referer=''):
+        header = self.header
+        header['User-Agent'] = self.ua.random
+        if referer:
+            header['Referer'] = referer
+        return header
+
 
 class UserAgent(object):
     def __init__(self):
