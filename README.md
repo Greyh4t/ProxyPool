@@ -22,7 +22,7 @@ http://localhost:8000
 ```
 or
 ```
-http://localhost:8000/?num=1&port=80&type=3&protocol=http&area=北京
+http://localhost:8000/?num=1&port=80&type=3&protocol=http&minscore=0&area=北京
 ```
 # Other
 ```

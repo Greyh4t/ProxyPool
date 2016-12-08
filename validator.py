@@ -39,7 +39,11 @@ class Validator:
     def _v(self, proxy, target):
         try:
             start = time.time()
-            r = requests.get(target, headers=self.headers, proxies={'http': 'http://%s' % proxy}, timeout=self.timeout, verify=False)
+            proxies = {
+                'http': 'http://%s' % proxy,
+                'https': 'http://%s' % proxy
+            }
+            r = requests.get(target, headers=self.headers, proxies=proxies, timeout=self.timeout, verify=False)
             if r.ok:
                 speed = time.time() - start
                 headers = self.pattern.findall(r.content)
@@ -76,19 +80,19 @@ class Validator:
         https_proxy_info = None
         if protocol == 'http':
             http_proxy_info = self._v(proxy, self.http_target)
-        # if protocol == 'https':
-            # https_proxy_info = self._v(proxy, self.https_target)
+        if protocol == 'https':
+            https_proxy_info = self._v(proxy, self.https_target)
         else:
             http_proxy_info = self._v(proxy, self.http_target)
-            # if not http_proxy_info:
-                # https_proxy_info = self._v(proxy, self.https_target)
+            if not http_proxy_info:
+                https_proxy_info = self._v(proxy, self.https_target)
 
         if http_proxy_info:
             http_proxy_info['protocol'] = 'http'
             proxy_info = http_proxy_info
-        # elif https_proxy_info:
-            # https_proxy_info['protocol'] = 'https'
-            # proxy_info = https_proxy_info
+        elif https_proxy_info:
+            https_proxy_info['protocol'] = 'https'
+            proxy_info = https_proxy_info
         return proxy_info
 
     def _get_self_ip(self):

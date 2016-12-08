@@ -47,10 +47,13 @@ class ProxyServer:
             if params:
                 for (k, v) in params.items():
                     try:
+                        k = k.lower()
                         if k == 'num':
                             conds['limit'] = v[0]
                         elif k == 'area':
                             conds['where'].append((where_dict[k], 'like', '%%%s%%' % v[0]))
+                        elif k == 'minscore':
+                            conds['where'].append(('score', '>=', v[0]))
                         else:
                             conds['where'].append((where_dict[k], '=', v[0]))
                     except:
