@@ -34,7 +34,7 @@ class DatabaseObject(object):
         query = self.queries['CREATE_TABLE'] % (table_name, values)
         self.cursor.execute(query)
         query = '''
-           CREATE INDEX IF NOT EXISTS proxy_index on proxy (protocol, type, area, speed, updatetime, lastusedtime);
+           CREATE INDEX IF NOT EXISTS proxy_index on proxy (protocol, type, area, speed, updatetime, lastusedtime, score);
            CREATE TRIGGER IF NOT EXISTS proxy_update_trig AFTER UPDATE OF speed ON proxy
                BEGIN
                  UPDATE proxy SET updatetime=datetime(\'now\',\'localtime\'),score=(score+1) WHERE ip=NEW.ip AND port=NEW.port;
