@@ -72,12 +72,17 @@ def get_proxy_sites():
 def get_proxy_sites2():
     import requests
     from bs4 import BeautifulSoup as BS
-    from config import HEADER
+    from config import HEADER, CRAWLER_CONFIG
+    from logger import logger
     sites = []
 
     url = 'http://blog.kuaidaili.com/'
     pattern = r'(?P<ip>(?:\d{1,3}\.){1,3}\d{1,3}):(?P<port>\d{1,4})'
-    r = requests.get(url, headers=HEADER)
+    try:
+        r = requests.get(url, headers=HEADER, timeout=CRAWLER_CONFIG['TIMEOUT'])
+    except requests.RequestException as e:
+        logger.warning('Crawl proxy site %s fail: %s', url, e)
+        return sites
     if r.ok:
         soup = BS(r.content, 'lxml')
         for s in soup.find_all('article')[:2]:

@@ -1,0 +1,4 @@
+beautifulsoup4>=4.15,<5
+gevent>=26.8,<27
+lxml>=6.1,<7
+requests>=2.32,<3
