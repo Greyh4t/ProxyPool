@@ -36,8 +36,18 @@ Query parameters can be combined to filter the result:
 http://localhost:8000/?num=1&port=80&type=3&protocol=http&minscore=0&area=北京
 ```
 
-The response contains the proxy address and its latest validation latency in
-milliseconds:
+Use `/` to get proxy addresses:
+
+```json
+["1.2.3.4:8080"]
+```
+
+Use `/latency` to get proxy addresses with their latest validation latency in
+milliseconds. Both endpoints support the same query parameters:
+
+```text
+http://localhost:8000/latency?num=1&type=3&protocol=http
+```
 
 ```json
 [["1.2.3.4:8080", 345]]

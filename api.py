@@ -32,15 +32,16 @@ class ProxyServer:
             # num=1&port=80&type=3&protocol=http&area=北京
             if '/favicon.ico' in self.path:
                 return
-            params = parse_qs(urlparse(self.path).query)
-            data = self.get_proxy(params)
+            request = urlparse(self.path)
+            params = parse_qs(request.query)
+            data = self.get_proxy(params, request.path == '/latency')
             self.protocal_version = 'HTTP/1.1'
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(data.encode('utf-8'))
 
-        def get_proxy(self, params):
+        def get_proxy(self, params, include_latency=False):
             where_dict = {'port': 'port', 'type': 'type', 'protocol': 'protocol', 'area': 'area'}
             conds = {
                 'field': ['ip', 'port', 'latency'],
@@ -66,7 +67,10 @@ class ProxyServer:
             tmp = [{'ip': n[0], 'port': n[1], 'lastusedtime': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} for
                    n in data]
             self.sqlite.update(self.table_name, tmp)
-            data = [('%s:%s' % (n[0], n[1]), int(n[2])) for n in data]
+            if include_latency:
+                data = [('%s:%s' % (n[0], n[1]), int(n[2])) for n in data]
+            else:
+                data = ['%s:%s' % (n[0], n[1]) for n in data]
             return json.dumps(data)
 
     def run(self):
