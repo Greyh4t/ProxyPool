@@ -47,14 +47,14 @@ class Crawler(object):
                                          proxies={'http': 'http://%s' % proxy})
                     else:
                         break
-                except Exception, e:
+                except Exception as e:
                     pass
                 COUNT += 1
             else:
                 break
         if not r or not r.ok:
             return []
-        for match in pattern.finditer(r.content):
+        for match in pattern.finditer(r.text):
             ip = match.groupdict()['ip']
             port = match.groupdict()['port']
             proxies.append('%s:%s' % (ip, port))

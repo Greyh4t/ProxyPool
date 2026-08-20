@@ -26,9 +26,9 @@ class UserAgent(object):
         }
 
     def load(self, db):
-        with codecs.open(db, encoding='utf-8', mode='rb',) as fp:
+        with codecs.open(db, encoding='utf-8', mode='r') as fp:
             return json.load(fp)
-        
+
     def __getitem__(self, attr):
         return self.__getattr__(attr)
 
@@ -54,8 +54,8 @@ class UserAgent(object):
 
 if __name__ == '__main__':
     ua = UserAgent()
-    print ua['opera']
-    print ua['ie']
-    print ua.chrome
-    print ua.firefox
-    print ua.random
+    print(ua['opera'])
+    print(ua['ie'])
+    print(ua.chrome)
+    print(ua.firefox)
+    print(ua.random)

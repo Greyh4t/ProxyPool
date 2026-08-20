@@ -30,6 +30,7 @@ CRAWLER_CONFIG = {
 VALIDATE_CONFIG = {
     'THREAD_NUM': 1000,
     'TIMEOUT': 20,
+    'MAX_LATENCY': 1000,  # milliseconds
     'PROXY_TYPE': [0, 1, 2, 3],
     'HTTP_TARGET': 'http://proxy.mimvp.com/check.php',
     'HTTPS_TARGET': 'https://proxy.mimvp.com/check.php'

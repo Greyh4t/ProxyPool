@@ -19,6 +19,7 @@ class Validator:
         self.http_target = VALIDATE_CONFIG['HTTP_TARGET']
         self.https_target = VALIDATE_CONFIG['HTTPS_TARGET']
         self.timeout = VALIDATE_CONFIG['TIMEOUT']
+        self.max_latency = VALIDATE_CONFIG.get('MAX_LATENCY', 0)
         self.thread_num = VALIDATE_CONFIG['THREAD_NUM']
         self.pattern = re.compile(
             r'((?:IP:Port)|(?:HTTP_CLIENT_IP)|(?:HTTP_X_FORWARDED_FOR))</td>\n?\s*<td.*?>(.*?)</td>', re.I)
@@ -32,7 +33,7 @@ class Validator:
         if not self.ip:
             logger.error('Validating fail, self ip is empty')
             return []
-        avaliable_proxies = filter(lambda x: x, self.pool.map(self.validate, proxies))
+        avaliable_proxies = list(filter(lambda x: x, self.pool.map(self.validate, proxies)))
         logger.info('Get %s avaliable proxies' % len(avaliable_proxies))
         return avaliable_proxies
 
@@ -45,8 +46,12 @@ class Validator:
             }
             r = requests.get(target, headers=self.headers, proxies=proxies, timeout=self.timeout, verify=False)
             if r.ok:
-                speed = time.time() - start
-                headers = self.pattern.findall(r.content)
+                latency = int((time.time() - start) * 1000)
+                if self.max_latency and latency > self.max_latency:
+                    logger.info('Validating %s, fail, time:%sms exceeds maximum:%sms',
+                                proxy, latency, self.max_latency)
+                    return None
+                headers = self.pattern.findall(r.text)
                 headers_info = {}
                 for header in headers:
                     headers_info[header[0]] = header[1].split(':')[0]
@@ -61,12 +66,12 @@ class Validator:
                         type = 2
                     else:
                         type = 1
-                    logger.info('Validating %s, success, type:%s, time:%ss', proxy, type, speed)
+                    logger.info('Validating %s, success, type:%s, time:%sms', proxy, type, latency)
                     return {
                         'ip': proxy.split(':')[0],
                         'port': proxy.split(':')[1],
                         'type': type,
-                        'speed': speed,
+                        'latency': latency,
                         'area': self.IPL.find(proxy.split(':')[0]).rstrip().replace('\t', '.')
                     }
         except Exception as e:
@@ -74,13 +79,14 @@ class Validator:
             pass
         return None
 
-    def validate(self, (proxy, protocol)):
+    def validate(self, proxy_with_protocol):
+        proxy, protocol = proxy_with_protocol
         proxy_info = None
         http_proxy_info = None
         https_proxy_info = None
         if protocol == 'http':
             http_proxy_info = self._v(proxy, self.http_target)
-        if protocol == 'https':
+        elif protocol == 'https':
             https_proxy_info = self._v(proxy, self.https_target)
         else:
             http_proxy_info = self._v(proxy, self.http_target)
@@ -101,9 +107,9 @@ class Validator:
             r = requests.get(self.http_target, headers=self.headers, timeout=5)
             if r.ok:
                 pattern = re.compile(r'IP:port</td>\n?\s*<td.*?>([\d.]*?)(?::\d*)</td>', re.I)
-                ip = pattern.search(r.content).group(1)
+                ip = pattern.search(r.text).group(1)
                 logger.info('Get self ip success: %s' % ip)
                 return ip
-        except Exception, e:
-            logger.warn('Get self ip fail, %s' % e)
+        except Exception as e:
+            logger.warning('Get self ip fail, %s' % e)
             return ''

@@ -25,7 +25,7 @@ class DatabaseObject(object):
            protocol varchar(10) NOT NULL DEFAULT http,
            type int(1) NOT NULL DEFAULT 0,
            area varchar(255) NOT NULL,
-           speed int(11) NOT NULL DEFAULT 0,
+           latency int(11) NOT NULL DEFAULT 0,
            updatetime TimeStamp NOT NULL DEFAULT (datetime(\'now\',\'localtime\')),
            lastusedtime TimeStamp NOT NULL DEFAULT '0000-00-00 00:00:00',
            score int(11) DEFAULT 1,
@@ -34,8 +34,8 @@ class DatabaseObject(object):
         query = self.queries['CREATE_TABLE'] % (table_name, values)
         self.cursor.execute(query)
         query = '''
-           CREATE INDEX IF NOT EXISTS proxy_index on proxy (protocol, type, area, speed, updatetime, lastusedtime, score);
-           CREATE TRIGGER IF NOT EXISTS proxy_update_trig AFTER UPDATE OF speed ON proxy
+           CREATE INDEX IF NOT EXISTS proxy_index on proxy (protocol, type, area, latency, updatetime, lastusedtime, score);
+           CREATE TRIGGER IF NOT EXISTS proxy_update_trig AFTER UPDATE OF latency ON proxy
                BEGIN
                  UPDATE proxy SET updatetime=datetime(\'now\',\'localtime\'),score=(score+1) WHERE ip=NEW.ip AND port=NEW.port;
                END;
@@ -54,7 +54,8 @@ class DatabaseObject(object):
         query = self.queries['SELECT'] % (','.join(condition['field']), table_name)
         if condition['where']:
             query += ' WHERE ' + ' and '.join(['%s %s ?' % n[:2] for n in condition['where']])
-            vals.extend([n[-1].decode('utf-8') for n in condition['where']])
+            vals.extend([n[-1].decode('utf-8') if isinstance(n[-1], bytes) else n[-1]
+                         for n in condition['where']])
         if condition['order']:
             query += ' ORDER BY ' + ','.join(condition['order'])
         if condition['limit']:
@@ -87,8 +88,8 @@ class DatabaseObject(object):
             query = self.queries['UPDATE'] % (table_name, updates, conds)
             try:
                 self.cursor.execute(query, vals + subs)
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 result.append(arg)
         self.db.commit()
         return result

@@ -19,9 +19,9 @@ def run():
             break
         try:
             r = requests.get(url, headers=HEADER, proxies={'http': 'http://%s' % proxy})
-            print r.ok, len(r.content), proxy
-        except Exception, e:
-            print proxy, e
+            print(r.ok, len(r.content), proxy)
+        except Exception as e:
+            print(proxy, e)
 
 if __name__ == '__main__':
     run()

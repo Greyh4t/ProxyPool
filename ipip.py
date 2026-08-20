@@ -25,8 +25,8 @@ class IPL:
                 self.offset, = self._unpack_N(self.binary[:4])
                 self.index = self.binary[4:self.offset]
         except Exception as ex:
-            print "cannot open file %s" % file
-            print ex.message
+            print("cannot open file %s" % file)
+            print(ex)
             exit(0)
 
     def find(self, ip):
@@ -46,8 +46,8 @@ class IPL:
         start = start * 8 + 1024
         while start < max_comp_len:
             if index[start:start + 4] >= nip:
-                index_offset, = self._unpack_V(index[start + 4:start + 7] + chr(0).encode('utf-8'))
-                index_length, = self._unpack_C(index[start + 7])
+                index_offset, = self._unpack_V(index[start + 4:start + 7] + b'\0')
+                index_length, = self._unpack_C(index[start + 7:start + 8])
                 break
             start += 8
 
@@ -64,4 +64,4 @@ if __name__ == '__main__':
         area = IPL.find(ip).rstrip().replace('\t', '.')
     except:
         area = 'None.None.None'
-    print area
+    print(area)
